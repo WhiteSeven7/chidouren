@@ -7,6 +7,7 @@ import sys
 import pygame
 import levels
 import sprites
+import copy
 
 
 '''定义一些必要的参数'''
@@ -101,11 +102,23 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 			ghosts_move(ghost_sprites, wall_sprites, magic_times)
 		# draw
 		screen.fill(BLACK)
-		hero_sprites.draw(screen)
 		wall_sprites.draw(screen)
 		gate_sprites.draw(screen)
 		food_sprites.draw(screen)
 		ghost_sprites.draw(screen)
+		# 预知
+		if magic_times['view']:
+			for i in range(5):
+				shadow_ghost_sprites = pygame.sprite.Group()
+				for ghost in ghost_sprites:
+					shadow_ghost_sprites.add(ghost.copy())
+				for _ in range(i):
+					ghosts_move(shadow_ghost_sprites, wall_sprites, magic_times)
+					ghosts_move(shadow_ghost_sprites, wall_sprites, magic_times)
+				for ghost in shadow_ghost_sprites:
+					ghost.image.set_alpha(255*(5-i)/6)
+				shadow_ghost_sprites.draw(screen)
+		hero_sprites.draw(screen)
 		# 得分
 		level_draw_text(font.render("得分：%s" % SCORE, True, RED), (642, 30), hero)
 		# 魔法
@@ -115,6 +128,8 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		if view:= magic_times['view']:
 			level_draw_text(font.render(f"幽灵路径", True, GREEN), (642, 532), hero)
 			level_draw_text(font.render(f"{view / 1000:.1f}", True, GREEN), (642, 562), hero)
+		
+		pygame.display.flip()
 		# 成功通过
 		if len(food_sprites) == 0:
 			return True
@@ -138,28 +153,29 @@ def ghosts_move(ghost_sprites, wall_sprites, magic_times):
 	for ghost in ghost_sprites:
 		# 指定幽灵运动路径
 		tracks_loc = ghost.tracks_loc
-		if tracks_loc[1] < ghost.tracks[tracks_loc[0]][2]:
-			ghost.changeSpeed(ghost.tracks[tracks_loc[0]][0: 2], magic_times)
+		tracks = ghost.tracks
+		if tracks_loc[1] < tracks[tracks_loc[0]][2]:
+			ghost.changeSpeed(tracks[tracks_loc[0]][0: 2], magic_times)
 			tracks_loc[1] += 1
 		else:
-			if tracks_loc[0] < len(ghost.tracks) - 1:
+			if tracks_loc[0] < len(tracks) - 1:
 				tracks_loc[0] += 1
 			elif ghost.role_name_path == levels.ClydePATH:
 				tracks_loc[0] = 2
 			else:
 				tracks_loc[0] = 0
-			ghost.changeSpeed(ghost.tracks[tracks_loc[0]][0: 2], magic_times)
+			ghost.changeSpeed(tracks[tracks_loc[0]][0: 2], magic_times)
 			tracks_loc[1] = 0
-		if tracks_loc[1] < ghost.tracks[tracks_loc[0]][2]:
-			ghost.changeSpeed(ghost.tracks[tracks_loc[0]][0: 2], magic_times)
+		if tracks_loc[1] < tracks[tracks_loc[0]][2]:
+			ghost.changeSpeed(tracks[tracks_loc[0]][0: 2], magic_times)
 		else:
-			if tracks_loc[0] < len(ghost.tracks) - 1:
+			if tracks_loc[0] < len(tracks) - 1:
 				loc0 = tracks_loc[0] + 1
 			elif ghost.role_name_path == levels.ClydePATH:
 				loc0 = 2
 			else:
 				loc0 = 0
-			ghost.changeSpeed(ghost.tracks[loc0][0: 2], magic_times)
+			ghost.changeSpeed(tracks[loc0][0: 2], magic_times)
 		ghost.update(wall_sprites, None)
 
 
@@ -169,6 +185,7 @@ def level_draw_text(
 		hero: levels.Player
 	) -> None:
 	rect = text_img.get_rect(center=center)
+	# 彩蛋
 	if not rect.colliderect(hero.rect):
 		screen.blit(text_img, rect)
 

@@ -122,3 +122,12 @@ class Player(pygame.sprite.Sprite):
 			self.rect.top = y_prev
 			return False
 		return True
+	
+	'''复制的自己'''
+	def copy(self) -> "Player":
+		shadow = self.__class__(
+			self.rect.left, self.rect.top, self.role_name_path,
+			self.is_move, self.tracks
+		)
+		shadow.tracks_loc = self.tracks_loc.copy()
+		return shadow
