@@ -6,10 +6,11 @@ import os
 import sys
 import pygame
 import levels
+import sprites
 
 
 '''定义一些必要的参数'''
-SIZE = 606, 606
+SIZE = 686, 606
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -23,6 +24,18 @@ ICONPATH = os.path.join(os.getcwd(), 'resources/images/icon.png')
 FONTPATH = os.path.join(os.getcwd(), 'resources/font/SmileySans-Oblique.ttf')
 
 
+'''用户事件'''
+class UserEvent:
+    order = pygame.USEREVENT
+
+    def __new__(cls):
+        cls.order += 1
+        return cls.order
+
+
+ADDGHOST = UserEvent()
+
+
 '''开始某一关游戏'''
 def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.font.Font):
 	clock = pygame.time.Clock()
@@ -31,11 +44,10 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 	gate, gate_sprites = level.setupGate(WHITE)
 	hero, hero_sprites, ghost_sprites = level.setupPlayers()
 	food_sprites = level.setupFood()
-	is_clearance = False
 	move_time = 0
 	move_COOL = 200
 	magic_times = {
-		'score': 0,
+		'strong': 0,
 		'view': 0
 	}
 	while True:
@@ -44,6 +56,8 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
+			elif event.type == ADDGHOST:
+				level.add_ghost(event.role_name_path)
 		keys = pygame.key.get_pressed()
 		if keys[pygame.K_LEFT] or keys[pygame.K_a]:
 			hero.changeSpeed([-1, 0])
@@ -72,14 +86,15 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 			food_eaten = pygame.sprite.spritecollide(hero, food_sprites, True)
 			SCORE += len(food_eaten)
 			# 获得魔法
+			food: sprites.Food
 			for food in food_eaten:
 				if food.magic in magic_times:
-					magic_times[food.magic] += 5000
+					magic_times[food.magic] += 8000
 				elif food.magic == 'score':
 					# 额外i得分
 					SCORE += 4
 			# 幽灵移动
-			ghosts_move(ghost_sprites, wall_sprites)
+			ghosts_move(ghost_sprites, wall_sprites, magic_times)
 		# draw
 		screen.fill(BLACK)
 		hero_sprites.draw(screen)
@@ -87,48 +102,66 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		gate_sprites.draw(screen)
 		food_sprites.draw(screen)
 		ghost_sprites.draw(screen)
-		score_text = font.render("Score: %s" % SCORE, True, RED)
-		screen.blit(score_text, [10, 10])
+		# 得分
+		score_text = font.render("得分：%s" % SCORE, True, RED)
+		screen.blit(score_text, score_text.get_rect(center=(642, 30)))
+		# 技能
+		if strong:= magic_times['strong']:
+			strong_text1 = font.render(f"幽灵弱化", True, RED)
+			screen.blit(strong_text1, strong_text1.get_rect(center=(642, 472)))
+			strong_text2 = font.render(f"{strong / 1000:.1f}", True, RED)
+			screen.blit(strong_text2, strong_text2.get_rect(center=(642, 502)))
+		if view:= magic_times['view']:
+			view_text1 = font.render(f"幽灵路径", True, GREEN)
+			screen.blit(view_text1, view_text1.get_rect(center=(642, 532)))
+			view_text2 = font.render(f"{view / 1000:.1f}", True, GREEN)
+			screen.blit(view_text2, view_text2.get_rect(center=(642, 562)))
 		pygame.display.flip()
 		# 成功通过
 		if len(food_sprites) == 0:
-			is_clearance = True
-			break
+			return True
 		# 被杀死
-		if pygame.sprite.groupcollide(hero_sprites, ghost_sprites, False, False):
-			is_clearance = False
-			break
+		if magic_times['strong']:
+			ghost: sprites.Player
+			for ghost in pygame.sprite.spritecollide(hero, ghost_sprites, True):
+				pygame.time.set_timer(
+					pygame.event.Event(ADDGHOST, {'role_name_path': ghost.role_name_path}),
+					4000, 1
+				)
+		elif pygame.sprite.spritecollide(hero, ghost_sprites, False):
+			return False
 		clock.tick(60)
-	return is_clearance
 
 
-def ghosts_move(ghost_sprites, wall_sprites):
+'''幽灵移动'''
+def ghosts_move(ghost_sprites, wall_sprites, magic_times):
 	from sprites import Player
 	ghost: Player
 	for ghost in ghost_sprites:
 		# 指定幽灵运动路径
-		if ghost.tracks_loc[1] < ghost.tracks[ghost.tracks_loc[0]][2]:
-			ghost.changeSpeed(ghost.tracks[ghost.tracks_loc[0]][0: 2])
-			ghost.tracks_loc[1] += 1
+		tracks_loc = ghost.tracks_loc
+		if tracks_loc[1] < ghost.tracks[tracks_loc[0]][2]:
+			ghost.changeSpeed(ghost.tracks[tracks_loc[0]][0: 2], magic_times)
+			tracks_loc[1] += 1
 		else:
-			if ghost.tracks_loc[0] < len(ghost.tracks) - 1:
-				ghost.tracks_loc[0] += 1
-			elif ghost.role_name == 'Clyde':
-				ghost.tracks_loc[0] = 2
+			if tracks_loc[0] < len(ghost.tracks) - 1:
+				tracks_loc[0] += 1
+			elif ghost.role_name_path == levels.ClydePATH:
+				tracks_loc[0] = 2
 			else:
-				ghost.tracks_loc[0] = 0
-			ghost.changeSpeed(ghost.tracks[ghost.tracks_loc[0]][0: 2])
-			ghost.tracks_loc[1] = 0
-		if ghost.tracks_loc[1] < ghost.tracks[ghost.tracks_loc[0]][2]:
-			ghost.changeSpeed(ghost.tracks[ghost.tracks_loc[0]][0: 2])
+				tracks_loc[0] = 0
+			ghost.changeSpeed(ghost.tracks[tracks_loc[0]][0: 2], magic_times)
+			tracks_loc[1] = 0
+		if tracks_loc[1] < ghost.tracks[tracks_loc[0]][2]:
+			ghost.changeSpeed(ghost.tracks[tracks_loc[0]][0: 2], magic_times)
 		else:
-			if ghost.tracks_loc[0] < len(ghost.tracks) - 1:
-				loc0 = ghost.tracks_loc[0] + 1
-			elif ghost.role_name == 'Clyde':
+			if tracks_loc[0] < len(ghost.tracks) - 1:
+				loc0 = tracks_loc[0] + 1
+			elif ghost.role_name_path == levels.ClydePATH:
 				loc0 = 2
 			else:
 				loc0 = 0
-			ghost.changeSpeed(ghost.tracks[loc0][0: 2])
+			ghost.changeSpeed(ghost.tracks[loc0][0: 2], magic_times)
 		ghost.update(wall_sprites, None)
 
 
@@ -160,7 +193,7 @@ def showText(screen: pygame.Surface, font: pygame.font.Font, is_clearance: bool)
 					return True
 		# 绘制
 		screen.fill(BLACK)
-		screen.blit(bg, (100, 200))
+		screen.blit(bg, bg.get_rect(center=(SIZE[0]/2,SIZE[1]/2)))
 		for text, position in zip(texts, positions):
 			screen.blit(text, position)
 		pygame.display.flip()
@@ -196,4 +229,5 @@ def main(screen):
 
 '''test'''
 if __name__ == '__main__':
-	main(initialize())
+	screen = initialize()
+	main(screen)

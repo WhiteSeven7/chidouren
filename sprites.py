@@ -79,7 +79,6 @@ class Player(pygame.sprite.Sprite):
 		self.tracks = [] if tracks is None else tracks
 		self.tracks_loc = [0, 0]
 
-		self.weak = False
 
 	'''特殊变色'''
 	def change_image(self):
@@ -90,7 +89,7 @@ class Player(pygame.sprite.Sprite):
 		self.image = changed_image
 
 	'''改变速度方向'''
-	def changeSpeed(self, direction):
+	def changeSpeed(self, direction, magic_times: dict[str, int] | None=None):
 		if direction[0] < 0:
 			self.image = pygame.transform.flip(self.base_image, True, False)
 		elif direction[0] > 0:
@@ -99,7 +98,7 @@ class Player(pygame.sprite.Sprite):
 			self.image = pygame.transform.rotate(self.base_image, 90)
 		elif direction[1] > 0:
 			self.image = pygame.transform.rotate(self.base_image, -90)
-		if self.weak:
+		if magic_times is not None and magic_times['strong']:
 			self.change_image()
 		self.speed = [direction[0] * self.base_speed[0], direction[1] * self.base_speed[1]]
 		return self.speed

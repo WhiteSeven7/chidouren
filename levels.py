@@ -16,6 +16,7 @@ ClydePATH = os.path.join(os.getcwd(), 'resources/images/Clyde.png')
 InkyPATH = os.path.join(os.getcwd(), 'resources/images/Inky.png')
 PinkyPATH = os.path.join(os.getcwd(), 'resources/images/Pinky.png')
 
+
 class Level():
 
 	'''创建墙'''
