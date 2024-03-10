@@ -105,15 +105,14 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		wall_sprites.draw(screen)
 		gate_sprites.draw(screen)
 		food_sprites.draw(screen)
-		ghost_sprites.draw(screen)
+		# ghost_sprites.draw(screen)
 		# 预知
 		if magic_times['view']:
 			for i in range(5):
 				shadow_ghost_sprites = pygame.sprite.Group()
 				for ghost in ghost_sprites:
 					shadow_ghost_sprites.add(ghost.copy())
-				for _ in range(i):
-					ghosts_move(shadow_ghost_sprites, wall_sprites, magic_times)
+				for _ in range(2 * i + 1):
 					ghosts_move(shadow_ghost_sprites, wall_sprites, magic_times)
 				for ghost in shadow_ghost_sprites:
 					ghost.image.set_alpha(255*(5-i)/6)

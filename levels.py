@@ -148,7 +148,8 @@ class Level():
 					continue
 				food = Food(30*col+31, 30*row+3)
 				if (pygame.sprite.spritecollide(food, self.wall_sprites, False)
-		 			or pygame.sprite.collide_rect(food, self.gate)):
+		 			or pygame.sprite.collide_rect(food, self.gate)
+					or pygame.sprite.collide_rect(food, self.hero)):
 					continue
 				self.food_sprites.add(food)
 		return self.food_sprites
