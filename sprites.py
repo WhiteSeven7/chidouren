@@ -34,7 +34,7 @@ class Food(pygame.sprite.Sprite):
 		'', '', '', '', '',
 		'', '', '', '', '',
 		'', '', '', '', '',
-		'', '', 'score', 'strong', 'view'
+		'score', 'strong', 'view'
 	]
 
 	def __init__(self, x, y):
@@ -65,7 +65,7 @@ class Food(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
 	def __init__(self, x, y, role_image_path, is_move=False, tracks=None):
 		pygame.sprite.Sprite.__init__(self)
-		self.role_name = role_image_path.split('/')[-1].split('.')[0]
+		self.role_name_path = role_image_path
 		self.base_image = pygame.image.load(role_image_path).convert_alpha()
 		self.image = self.base_image.copy()
 		self.rect = self.image.get_rect()

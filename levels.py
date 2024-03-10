@@ -4,10 +4,17 @@ Function:
 '''
 import pygame
 from sprites import *
+import os
 
 
 NUMLEVELS = 1
 
+
+HEROPATH = os.path.join(os.getcwd(), 'resources/images/pacman.png')
+BlinkyPATH = os.path.join(os.getcwd(), 'resources/images/Blinky.png')
+ClydePATH = os.path.join(os.getcwd(), 'resources/images/Clyde.png')
+InkyPATH = os.path.join(os.getcwd(), 'resources/images/Inky.png')
+PinkyPATH = os.path.join(os.getcwd(), 'resources/images/Pinky.png')
 
 class Level():
 
@@ -63,48 +70,78 @@ class Level():
 		return self.gate, pygame.sprite.GroupSingle(self.gate)
 	
 	'''创建角色'''
-	def setupPlayers(self, hero_image_path, ghost_images_path) -> tuple[Player, pygame.sprite.GroupSingle, pygame.sprite.Group]:
-		self.hero = Player(287, 439, hero_image_path)
-		ghost_sprites = pygame.sprite.Group()
-		for each in ghost_images_path:
-			role_name = each.split('/')[-1].split('.')[0]
-			if role_name == 'Blinky':
-				tracks = [
-					[0, -0.5, 4], [0.5, 0, 9], [0, 0.5, 11], [0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, 0.5, 3],
-					[0.5, 0, 15], [0, -0.5, 15], [0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3],
-					[0, -0.5, 3], [-0.5, 0, 7], [0, -0.5, 3], [0.5, 0, 15], [0, 0.5, 15], [-0.5, 0, 3], [0, 0.5, 3],
-					[-0.5, 0, 3], [0, -0.5, 7], [-0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, -0.5, 7], [0.5, 0, 5]
-				]
-				ghost_sprites.add(Player(287, 199, each, True, tracks))
-			elif role_name == 'Clyde':
-				tracks = [
-					[-1, 0, 2], [0, -0.5, 4], [0.5, 0, 5], [0, 0.5, 7], [-0.5, 0, 11], [0, -0.5, 7],
-					[-0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 7], [0, 0.5, 15], [0.5, 0, 15], [0, -0.5, 3],
-					[-0.5, 0, 11], [0, -0.5, 7], [0.5, 0, 3], [0, -0.5, 11], [0.5, 0, 9]
-				]
-				ghost_sprites.add(Player(319, 259, each, True, tracks))
-			elif role_name == 'Inky':
-				tracks = [
-					[1, 0, 2], [0, -0.5, 4], [0.5, 0, 10], [0, 0.5, 7], [0.5, 0, 3], [0, -0.5, 3],
-					[0.5, 0, 3], [0, -0.5, 15], [-0.5, 0, 15], [0, 0.5, 3], [0.5, 0, 15], [0, 0.5, 11],
-					[-0.5, 0, 3], [0, -0.5, 7], [-0.5, 0, 11], [0, 0.5, 3], [-0.5, 0, 11], [0, 0.5, 7],
-					[-0.5, 0, 3], [0, -0.5, 3], [-0.5, 0, 3], [0, -0.5, 15], [0.5, 0, 15], [0, 0.5, 3],
-					[-0.5, 0, 15], [0, 0.5, 11], [0.5, 0, 3], [0, -0.5, 11], [0.5, 0, 11], [0, 0.5, 3], [0.5, 0, 1]
-				]
-				ghost_sprites.add(Player(255, 259, each, True, tracks))
-			elif role_name == 'Pinky':
-				tracks = [
-					[0, -1, 4], [0.5, 0, 9], [0, 0.5, 11], [-0.5, 0, 23], [0, 0.5, 7], [0.5, 0, 3],
-					[0, -0.5, 3], [0.5, 0, 19], [0, 0.5, 3], [0.5, 0, 3], [0, 0.5, 3], [0.5, 0, 3],
-					[0, -0.5, 15], [-0.5, 0, 7], [0, 0.5, 3], [-0.5, 0, 19], [0, -0.5, 11], [0.5, 0, 9]
-				]
-				ghost_sprites.add(Player(287, 259, each, True, tracks))
-		return self.hero, pygame.sprite.GroupSingle(self.hero), ghost_sprites
+	def setupPlayers(self) -> tuple[Player, pygame.sprite.GroupSingle, pygame.sprite.Group]:
+		self.hero = Player(287, 439, HEROPATH)
+		self.ghost_sprites = pygame.sprite.Group()
+		tracks = [
+			[0, -0.5, 4], [0.5, 0, 9], [0, 0.5, 11], [0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, 0.5, 3],
+			[0.5, 0, 15], [0, -0.5, 15], [0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3],
+			[0, -0.5, 3], [-0.5, 0, 7], [0, -0.5, 3], [0.5, 0, 15], [0, 0.5, 15], [-0.5, 0, 3], [0, 0.5, 3],
+			[-0.5, 0, 3], [0, -0.5, 7], [-0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, -0.5, 7], [0.5, 0, 5]
+		]
+		self.ghost_sprites.add(Player(287, 199, BlinkyPATH, True, tracks))
+		# Clyde
+		tracks = [
+			[-1, 0, 2], [0, -0.5, 4], [0.5, 0, 5], [0, 0.5, 7], [-0.5, 0, 11], [0, -0.5, 7],
+			[-0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 7], [0, 0.5, 15], [0.5, 0, 15], [0, -0.5, 3],
+			[-0.5, 0, 11], [0, -0.5, 7], [0.5, 0, 3], [0, -0.5, 11], [0.5, 0, 9]
+		]
+		self.ghost_sprites.add(Player(319, 259, ClydePATH, True, tracks))
+		# Inky
+		tracks = [
+			[1, 0, 2], [0, -0.5, 4], [0.5, 0, 10], [0, 0.5, 7], [0.5, 0, 3], [0, -0.5, 3],
+			[0.5, 0, 3], [0, -0.5, 15], [-0.5, 0, 15], [0, 0.5, 3], [0.5, 0, 15], [0, 0.5, 11],
+			[-0.5, 0, 3], [0, -0.5, 7], [-0.5, 0, 11], [0, 0.5, 3], [-0.5, 0, 11], [0, 0.5, 7],
+			[-0.5, 0, 3], [0, -0.5, 3], [-0.5, 0, 3], [0, -0.5, 15], [0.5, 0, 15], [0, 0.5, 3],
+			[-0.5, 0, 15], [0, 0.5, 11], [0.5, 0, 3], [0, -0.5, 11], [0.5, 0, 11], [0, 0.5, 3], [0.5, 0, 1]
+		]
+		self.ghost_sprites.add(Player(255, 259, InkyPATH, True, tracks))
+		# Pinky
+		tracks = [
+			[0, -1, 4], [0.5, 0, 9], [0, 0.5, 11], [-0.5, 0, 23], [0, 0.5, 7], [0.5, 0, 3],
+			[0, -0.5, 3], [0.5, 0, 19], [0, 0.5, 3], [0.5, 0, 3], [0, 0.5, 3], [0.5, 0, 3],
+			[0, -0.5, 15], [-0.5, 0, 7], [0, 0.5, 3], [-0.5, 0, 19], [0, -0.5, 11], [0.5, 0, 9]
+		]
+		self.ghost_sprites.add(Player(287, 259, PinkyPATH, True, tracks))
+		return self.hero, pygame.sprite.GroupSingle(self.hero), self.ghost_sprites
 	
+	def add_ghost(self, ghost_path):
+		if ghost_path == BlinkyPATH:
+			tracks = [
+				[0, -0.5, 4], [0.5, 0, 9], [0, 0.5, 11], [0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, 0.5, 3],
+				[0.5, 0, 15], [0, -0.5, 15], [0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3],
+				[0, -0.5, 3], [-0.5, 0, 7], [0, -0.5, 3], [0.5, 0, 15], [0, 0.5, 15], [-0.5, 0, 3], [0, 0.5, 3],
+				[-0.5, 0, 3], [0, -0.5, 7], [-0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, -0.5, 7], [0.5, 0, 5]
+			]
+			self.ghost_sprites.add(Player(287, 199, ghost_path, True, tracks))
+		elif ghost_path == ClydePATH:
+			tracks = [
+				[-1, 0, 2], [0, -0.5, 4], [0.5, 0, 5], [0, 0.5, 7], [-0.5, 0, 11], [0, -0.5, 7],
+				[-0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 7], [0, 0.5, 15], [0.5, 0, 15], [0, -0.5, 3],
+				[-0.5, 0, 11], [0, -0.5, 7], [0.5, 0, 3], [0, -0.5, 11], [0.5, 0, 9]
+			]
+			self.ghost_sprites.add(Player(319, 259, ghost_path, True, tracks))
+		elif ghost_path == InkyPATH:
+			tracks = [
+				[1, 0, 2], [0, -0.5, 4], [0.5, 0, 10], [0, 0.5, 7], [0.5, 0, 3], [0, -0.5, 3],
+				[0.5, 0, 3], [0, -0.5, 15], [-0.5, 0, 15], [0, 0.5, 3], [0.5, 0, 15], [0, 0.5, 11],
+				[-0.5, 0, 3], [0, -0.5, 7], [-0.5, 0, 11], [0, 0.5, 3], [-0.5, 0, 11], [0, 0.5, 7],
+				[-0.5, 0, 3], [0, -0.5, 3], [-0.5, 0, 3], [0, -0.5, 15], [0.5, 0, 15], [0, 0.5, 3],
+				[-0.5, 0, 15], [0, 0.5, 11], [0.5, 0, 3], [0, -0.5, 11], [0.5, 0, 11], [0, 0.5, 3], [0.5, 0, 1]
+			]
+			self.ghost_sprites.add(Player(255, 259, ghost_path, True, tracks))
+		elif ghost_path == PinkyPATH:
+			tracks = [
+				[0, -1, 4], [0.5, 0, 9], [0, 0.5, 11], [-0.5, 0, 23], [0, 0.5, 7], [0.5, 0, 3],
+				[0, -0.5, 3], [0.5, 0, 19], [0, 0.5, 3], [0.5, 0, 3], [0, 0.5, 3], [0.5, 0, 3],
+				[0, -0.5, 15], [-0.5, 0, 7], [0, 0.5, 3], [-0.5, 0, 19], [0, -0.5, 11], [0.5, 0, 9]
+			]
+			self.ghost_sprites.add(Player(287, 259, ghost_path, True, tracks))
+
 	'''创建食物'''
 	def setupFood(self):
 		self.food_sprites = pygame.sprite.Group()
-		for row in range(19):
+		for row in range(20):
 			for col in range(19):
 				if row in (8, 9) and col in (8, 9, 10):
 					continue

@@ -21,11 +21,6 @@ SKYBLUE = (0, 191, 255)
 BGMPATH = os.path.join(os.getcwd(), 'resources/sounds/bg.mp3')
 ICONPATH = os.path.join(os.getcwd(), 'resources/images/icon.png')
 FONTPATH = os.path.join(os.getcwd(), 'resources/font/SmileySans-Oblique.ttf')
-HEROPATH = os.path.join(os.getcwd(), 'resources/images/pacman.png')
-BlinkyPATH = os.path.join(os.getcwd(), 'resources/images/Blinky.png')
-ClydePATH = os.path.join(os.getcwd(), 'resources/images/Clyde.png')
-InkyPATH = os.path.join(os.getcwd(), 'resources/images/Inky.png')
-PinkyPATH = os.path.join(os.getcwd(), 'resources/images/Pinky.png')
 
 
 '''开始某一关游戏'''
@@ -34,7 +29,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 	SCORE = 0
 	wall_sprites = level.setupWalls(SKYBLUE)
 	gate, gate_sprites = level.setupGate(WHITE)
-	hero, hero_sprites, ghost_sprites = level.setupPlayers(HEROPATH, [BlinkyPATH, ClydePATH, InkyPATH, PinkyPATH])
+	hero, hero_sprites, ghost_sprites = level.setupPlayers()
 	food_sprites = level.setupFood()
 	is_clearance = False
 	move_time = 0
