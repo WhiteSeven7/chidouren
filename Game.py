@@ -25,16 +25,6 @@ ICONPATH = os.path.join(os.getcwd(), 'resources/images/icon.png')
 FONTPATH = os.path.join(os.getcwd(), 'resources/font/SmileySans-Oblique.ttf')
 
 
-'''用户事件'''
-class UserEvent:
-    order = pygame.USEREVENT
-
-    def __new__(cls):
-        cls.order += 1
-        return cls.order
-
-
-ADDGHOST = UserEvent()
 
 
 '''开始某一关游戏'''
@@ -53,13 +43,14 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 	}
 	# 上帝模式
 	god_mode = False
+	ghost_index = 0
 	while True:
 		# control
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
 				sys.exit()
-			elif event.type == ADDGHOST:
+			elif 0 <= event.type - pygame.USEREVENT < 4:
 				level.add_ghost(event.role_name_path)
 			elif event.type == pygame.KEYDOWN and event.key == pygame.K_x:
 				god_mode = not god_mode
@@ -105,7 +96,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		wall_sprites.draw(screen)
 		gate_sprites.draw(screen)
 		food_sprites.draw(screen)
-		# ghost_sprites.draw(screen)
+		ghost_sprites.draw(screen)
 		# 预知
 		if magic_times['view']:
 			for i in range(5):
@@ -127,7 +118,6 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		if view:= magic_times['view']:
 			level_draw_text(font.render(f"幽灵路径", True, GREEN), (642, 532), hero)
 			level_draw_text(font.render(f"{view / 1000:.1f}", True, GREEN), (642, 562), hero)
-		
 		pygame.display.flip()
 		# 成功通过
 		if len(food_sprites) == 0:
@@ -137,9 +127,10 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 			ghost: sprites.Player
 			for ghost in pygame.sprite.spritecollide(hero, ghost_sprites, True):
 				pygame.time.set_timer(
-					pygame.event.Event(ADDGHOST, {'role_name_path': ghost.role_name_path}),
-					4000, 1
+					pygame.event.Event(pygame.USEREVENT + ghost_index, {'role_name_path': ghost.role_name_path}),
+					1, 1
 				)
+				ghost_index = (ghost_index + 1) % 4
 		elif not god_mode and pygame.sprite.spritecollide(hero, ghost_sprites, False):
 			return False
 		clock.tick(60)
