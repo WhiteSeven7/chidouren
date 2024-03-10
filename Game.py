@@ -106,7 +106,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 				for _ in range(2 * i + 1):
 					ghosts_move(shadow_ghost_sprites, wall_sprites, magic_times)
 				for ghost in shadow_ghost_sprites:
-					ghost.image.set_alpha(255*(5-i)/6)
+					ghost.image.set_alpha(200*(5-i)/6)
 				shadow_ghost_sprites.draw(screen)
 		hero_sprites.draw(screen)
 		# 得分
@@ -128,7 +128,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 			for ghost in pygame.sprite.spritecollide(hero, ghost_sprites, True):
 				pygame.time.set_timer(
 					pygame.event.Event(pygame.USEREVENT + ghost_index, {'role_name_path': ghost.role_name_path}),
-					1, 1
+					4000, 1
 				)
 				ghost_index = (ghost_index + 1) % 4
 		elif not god_mode and pygame.sprite.spritecollide(hero, ghost_sprites, False):
