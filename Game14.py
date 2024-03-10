@@ -35,10 +35,14 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 	wall_sprites = level.setupWalls(SKYBLUE)
 	gate, gate_sprites = level.setupGate(WHITE)
 	hero, hero_sprites, ghost_sprites = level.setupPlayers(HEROPATH, [BlinkyPATH, ClydePATH, InkyPATH, PinkyPATH])
-	food_sprites = level.setupFood(YELLOW, WHITE)
+	food_sprites = level.setupFood()
 	is_clearance = False
 	move_time = 0
 	move_COOL = 200
+	magic_times = {
+		'score': 0,
+		'view': 0
+	}
 	while True:
 		# control
 		for event in pygame.event.get():
@@ -60,7 +64,11 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 			hero.is_move = True
 		else:
 			hero.is_move = False
+		# 魔法效果流失
+		for magic in magic_times:
+			magic_times[magic] = max(magic_times[magic] - clock.get_time(), 0)
 		# update
+		move_time += clock.get_time()
 		if move_time >= move_COOL:
 			move_time -= move_COOL
 			# 玩家移动位子
@@ -68,6 +76,13 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 			# 玩家吃果子
 			food_eaten = pygame.sprite.spritecollide(hero, food_sprites, True)
 			SCORE += len(food_eaten)
+			# 获得魔法
+			for food in food_eaten:
+				if food.magic in magic_times:
+					magic_times[food.magic] += 5000
+				elif food.magic == 'score':
+					# 额外i得分
+					SCORE += 4
 			# 幽灵移动
 			ghosts_move(ghost_sprites, wall_sprites)
 		# draw
@@ -76,7 +91,6 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		wall_sprites.draw(screen)
 		gate_sprites.draw(screen)
 		food_sprites.draw(screen)
-		move_time += clock.get_time()
 		ghost_sprites.draw(screen)
 		score_text = font.render("Score: %s" % SCORE, True, RED)
 		screen.blit(score_text, [10, 10])
