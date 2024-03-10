@@ -28,7 +28,7 @@ FONTPATH = os.path.join(os.getcwd(), 'resources/font/SmileySans-Oblique.ttf')
 
 
 '''开始某一关游戏'''
-def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.font.Font):
+def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.font.Font, level_index: int):
 	clock = pygame.time.Clock()
 	SCORE = 0
 	wall_sprites = level.setupWalls(SKYBLUE)
@@ -44,6 +44,11 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 	# 上帝模式
 	god_mode = False
 	ghost_index = 0
+	# 文字
+	fade = font.render(f"幽灵弱化", True, RED)
+	path = font.render(f"幽灵路径", True, GREEN)
+	index = font.render(f"第{level_index}关", True, WHITE)
+	god_img = font.render(f"上帝模式", True, WHITE)
 	while True:
 		# control
 		for event in pygame.event.get():
@@ -52,8 +57,12 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 				sys.exit()
 			elif 0 <= event.type - pygame.USEREVENT < 4:
 				level.add_ghost(event.role_name_path)
-			elif event.type == pygame.KEYDOWN and event.key == pygame.K_x:
-				god_mode = not god_mode
+			elif event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_x:
+					god_mode = not god_mode
+				elif event.key == pygame.K_p:
+					pygame.quit()
+					sys.exit()
 		keys = pygame.key.get_pressed()
 		if keys[pygame.K_LEFT] or keys[pygame.K_a]:
 			hero.changeSpeed([-1, 0])
@@ -109,15 +118,20 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 					ghost.image.set_alpha(200*(5-i)/6)
 				shadow_ghost_sprites.draw(screen)
 		hero_sprites.draw(screen)
+		# 关卡
+		level_draw_text(index, (642, 30), hero)
 		# 得分
-		level_draw_text(font.render("得分：%s" % SCORE, True, RED), (642, 30), hero)
+		level_draw_text(font.render("得分：%s" % SCORE, True, RED), (642, 60), hero)
 		# 魔法
 		if strong := magic_times['strong']:
-			level_draw_text(font.render(f"幽灵弱化", True, RED), (642, 472), hero)
+			level_draw_text(fade, (642, 472), hero)
 			level_draw_text(font.render(f"{strong / 1000:.1f}", True, RED), (642, 502), hero)
 		if view:= magic_times['view']:
-			level_draw_text(font.render(f"幽灵路径", True, GREEN), (642, 532), hero)
+			level_draw_text(path, (642, 532), hero)
 			level_draw_text(font.render(f"{view / 1000:.1f}", True, GREEN), (642, 562), hero)
+		# 上帝
+		if god_mode:
+			level_draw_text(god_img, (642, SIZE[1]/2), hero)
 		pygame.display.flip()
 		# 成功通过
 		if len(food_sprites) == 0:
@@ -133,7 +147,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 				ghost_index = (ghost_index + 1) % 4
 		elif not god_mode and pygame.sprite.spritecollide(hero, ghost_sprites, False):
 			return False
-		clock.tick(60)
+		clock.tick()
 
 
 '''幽灵移动'''
@@ -189,7 +203,7 @@ def showText(screen: pygame.Surface, font: pygame.font.Font, is_clearance: bool)
 	texts = [
 		font.render(msg, True, WHITE),
 		font.render('按“回车”重新游玩', True, WHITE),
-		font.render('按“ESC”退出游戏', True, WHITE)
+		font.render('按“ESC”或“p”退出游戏', True, WHITE)
 	]
 	positions = [
 		img.get_rect(center=(SIZE[0]/2,SIZE[1]/2+(i-1)*2*img.get_height()))
@@ -204,7 +218,7 @@ def showText(screen: pygame.Surface, font: pygame.font.Font, is_clearance: bool)
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_RETURN:
 					return False
-				elif event.key == pygame.K_ESCAPE:
+				elif event.key in (pygame.K_ESCAPE, pygame.K_p):
 					return True
 		# 绘制
 		screen.fill(BLACK)
@@ -212,7 +226,7 @@ def showText(screen: pygame.Surface, font: pygame.font.Font, is_clearance: bool)
 		for text, position in zip(texts, positions):
 			screen.blit(text, position)
 		pygame.display.flip()
-		clock.tick(60)
+		clock.tick()
 
 
 '''初始化'''
@@ -233,9 +247,11 @@ def main(screen):
 	pygame.font.init()
 	font_small = pygame.font.Font(FONTPATH, 18)
 	font_big = pygame.font.Font(FONTPATH, 24)
+	level_index = 0
 	while True:
+		level_index += 1
 		level = levels.Level()
-		is_clearance = startLevelGame(level, screen, font_small)
+		is_clearance = startLevelGame(level, screen, font_small, level_index)
 		if showText(screen, font_big, is_clearance):
 			break
 	pygame.quit()

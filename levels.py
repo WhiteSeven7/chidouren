@@ -142,11 +142,11 @@ class Level():
 	'''创建食物'''
 	def setupFood(self):
 		self.food_sprites = pygame.sprite.Group()
-		for row in range(20):
-			for col in range(19):
+		for row in range(1, 20):
+			for col in range(1, 20):
 				if row in (8, 9) and col in (8, 9, 10):
 					continue
-				food = Food(30*col+31, 30*row+3)
+				food = Food(30*col, 30*row)
 				if (pygame.sprite.spritecollide(food, self.wall_sprites, False)
 		 			or pygame.sprite.collide_rect(food, self.gate)
 					or pygame.sprite.collide_rect(food, self.hero)):

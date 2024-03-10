@@ -4,11 +4,14 @@ Function:
 '''
 import pygame
 import random
+import os
 
 
 YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+
+ORANGEPATH = os.path.join(os.getcwd(), "resources/images/orange.png")
 
 
 '''墙类'''
@@ -38,25 +41,28 @@ class Food(pygame.sprite.Sprite):
 	]
 
 	def __init__(self, x, y):
-		width, height = 6, 6
-		color = YELLOW
 		self.magic = random.choice(self.magic_list)
-		if self.magic == 'score':
+		if not self.magic:
+			width, height = 6, 6
+			color = YELLOW
+		else:
 			width, height = 12, 12
-			x -= 3
-			y -= 3
-		elif self.magic == 'strong':
-			color = RED
-		elif self.magic == 'view':
-			color = GREEN
+			if self.magic == 'strong':
+				color = RED
+			elif self.magic == 'view':
+				color = GREEN
+
+		
+
 
 		pygame.sprite.Sprite.__init__(self)
-		self.image = pygame.Surface([width, height]).convert_alpha()
-		self.image.fill("#00000000")
-		pygame.draw.ellipse(self.image, color, [0, 0, width, height])
-		self.rect = self.image.get_rect()
-		self.rect.left = x
-		self.rect.top = y
+		if self.magic != 'score':
+			self.image = pygame.Surface((width, height)).convert_alpha()
+			self.image.fill("#00000000")
+			pygame.draw.ellipse(self.image, color, (0, 0, width, height))
+		else:
+			self.image = pygame.image.load(ORANGEPATH).convert_alpha()
+		self.rect = self.image.get_rect(center=(x,y))
 
 
 
