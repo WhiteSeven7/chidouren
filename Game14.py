@@ -33,7 +33,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 	clock = pygame.time.Clock()
 	SCORE = 0
 	wall_sprites = level.setupWalls(SKYBLUE)
-	gate_sprites = level.setupGate(WHITE)
+	gate, gate_sprites = level.setupGate(WHITE)
 	hero, hero_sprites, ghost_sprites = level.setupPlayers(HEROPATH, [BlinkyPATH, ClydePATH, InkyPATH, PinkyPATH])
 	food_sprites = level.setupFood(YELLOW, WHITE)
 	is_clearance = False
@@ -64,7 +64,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		if move_time >= move_COOL:
 			move_time -= move_COOL
 			# 玩家移动位子
-			hero.update(wall_sprites, gate_sprites)
+			hero.update(wall_sprites, gate)
 			# 玩家吃果子
 			food_eaten = pygame.sprite.spritecollide(hero, food_sprites, True)
 			SCORE += len(food_eaten)

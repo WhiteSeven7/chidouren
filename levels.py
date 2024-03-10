@@ -58,9 +58,9 @@ class Level():
 		return self.wall_sprites
 	
 	'''创建门'''
-	@staticmethod
-	def setupGate(gate_color):
-		return pygame.sprite.Group(Wall(282, 242, 42, 2, gate_color))
+	def setupGate(self, gate_color):
+		self.gate = Wall(282, 242, 42, 2, gate_color)
+		return self.gate, pygame.sprite.GroupSingle(self.gate)
 	
 	'''创建角色'''
 	def setupPlayers(self, hero_image_path, ghost_images_path) -> tuple[Player, pygame.sprite.GroupSingle, pygame.sprite.Group]:
@@ -110,7 +110,7 @@ class Level():
 					continue
 				food = Food(30*col+32, 30*row+32, 4, 4, food_color, bg_color)
 				if (pygame.sprite.spritecollide(food, self.wall_sprites, False)
-		 			or pygame.sprite.collide_rect(food, self.hero)):
+		 			or pygame.sprite.collide_rect(food, self.gate)):
 					continue
 				self.food_sprites.add(food)
 		return self.food_sprites

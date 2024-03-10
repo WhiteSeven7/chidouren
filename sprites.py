@@ -61,8 +61,8 @@ class Player(pygame.sprite.Sprite):
 		return self.speed
 	
 	'''更新角色位置'''
-	def update(self, wall_sprites, gate_sprites) -> bool:
-		if gate_sprites and not self.is_move:
+	def update(self, wall_sprites, gate) -> bool:
+		if gate and not self.is_move:
 			return False
 		x_prev = self.rect.left
 		y_prev = self.rect.top
@@ -70,8 +70,8 @@ class Player(pygame.sprite.Sprite):
 		self.rect.top += self.speed[1]
 		if (
 			pygame.sprite.spritecollide(self, wall_sprites, False)
-	  		or gate_sprites is not None
-			and pygame.sprite.spritecollide(self, gate_sprites, False)
+	  		or gate is not None
+			and pygame.sprite.collide_rect(self, gate)
 		):
 			self.rect.left = x_prev
 			self.rect.top = y_prev
