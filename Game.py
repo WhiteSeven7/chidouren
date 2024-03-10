@@ -50,6 +50,8 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		'strong': 0,
 		'view': 0
 	}
+	# 上帝模式
+	god_mode = False
 	while True:
 		# control
 		for event in pygame.event.get():
@@ -58,6 +60,8 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 				sys.exit()
 			elif event.type == ADDGHOST:
 				level.add_ghost(event.role_name_path)
+			elif event.type == pygame.KEYDOWN and event.key == pygame.K_x:
+				god_mode = not god_mode
 		keys = pygame.key.get_pressed()
 		if keys[pygame.K_LEFT] or keys[pygame.K_a]:
 			hero.changeSpeed([-1, 0])
@@ -81,7 +85,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		if move_time >= move_COOL:
 			move_time -= move_COOL
 			# 玩家移动位子
-			hero.update(wall_sprites, gate)
+			hero.update(wall_sprites, gate, god_mode)
 			# 玩家吃果子
 			food_eaten = pygame.sprite.spritecollide(hero, food_sprites, True)
 			SCORE += len(food_eaten)
@@ -103,20 +107,14 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		food_sprites.draw(screen)
 		ghost_sprites.draw(screen)
 		# 得分
-		score_text = font.render("得分：%s" % SCORE, True, RED)
-		screen.blit(score_text, score_text.get_rect(center=(642, 30)))
-		# 技能
-		if strong:= magic_times['strong']:
-			strong_text1 = font.render(f"幽灵弱化", True, RED)
-			screen.blit(strong_text1, strong_text1.get_rect(center=(642, 472)))
-			strong_text2 = font.render(f"{strong / 1000:.1f}", True, RED)
-			screen.blit(strong_text2, strong_text2.get_rect(center=(642, 502)))
+		level_draw_text(font.render("得分：%s" % SCORE, True, RED), (642, 30), hero)
+		# 魔法
+		if strong := magic_times['strong']:
+			level_draw_text(font.render(f"幽灵弱化", True, RED), (642, 472), hero)
+			level_draw_text(font.render(f"{strong / 1000:.1f}", True, RED), (642, 502), hero)
 		if view:= magic_times['view']:
-			view_text1 = font.render(f"幽灵路径", True, GREEN)
-			screen.blit(view_text1, view_text1.get_rect(center=(642, 532)))
-			view_text2 = font.render(f"{view / 1000:.1f}", True, GREEN)
-			screen.blit(view_text2, view_text2.get_rect(center=(642, 562)))
-		pygame.display.flip()
+			level_draw_text(font.render(f"幽灵路径", True, GREEN), (642, 532), hero)
+			level_draw_text(font.render(f"{view / 1000:.1f}", True, GREEN), (642, 562), hero)
 		# 成功通过
 		if len(food_sprites) == 0:
 			return True
@@ -128,7 +126,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 					pygame.event.Event(ADDGHOST, {'role_name_path': ghost.role_name_path}),
 					4000, 1
 				)
-		elif pygame.sprite.spritecollide(hero, ghost_sprites, False):
+		elif not god_mode and pygame.sprite.spritecollide(hero, ghost_sprites, False):
 			return False
 		clock.tick(60)
 
@@ -163,6 +161,16 @@ def ghosts_move(ghost_sprites, wall_sprites, magic_times):
 				loc0 = 0
 			ghost.changeSpeed(ghost.tracks[loc0][0: 2], magic_times)
 		ghost.update(wall_sprites, None)
+
+
+'''绘制文字'''
+def level_draw_text(
+		text_img: pygame.Surface, center: tuple[int, int],
+		hero: levels.Player
+	) -> None:
+	rect = text_img.get_rect(center=center)
+	if not rect.colliderect(hero.rect):
+		screen.blit(text_img, rect)
 
 
 '''显示文字'''

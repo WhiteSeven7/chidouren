@@ -104,13 +104,15 @@ class Player(pygame.sprite.Sprite):
 		return self.speed
 	
 	'''更新角色位置'''
-	def update(self, wall_sprites, gate) -> bool:
+	def update(self, wall_sprites, gate, god_mode: bool=False) -> bool:
 		if gate and not self.is_move:
 			return False
 		x_prev = self.rect.left
 		y_prev = self.rect.top
 		self.rect.left += self.speed[0]
 		self.rect.top += self.speed[1]
+		if god_mode:
+			return True
 		if (
 			pygame.sprite.spritecollide(self, wall_sprites, False)
 	  		or gate is not None
