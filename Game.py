@@ -9,7 +9,6 @@ import levels
 import sprites
 from menu import *
 import datetime
-import json
 
 
 '''定义一些必要的参数'''
@@ -241,19 +240,6 @@ def initialize():
 	screen = pygame.display.set_mode(SIZE)
 	pygame.display.set_caption('吃豆人')
 	return screen
-
-
-'''拿到成绩数据'''
-def get_score_data():
-	with open("score_lock.json", 'r', encoding='utf-8') as file:
-		score_data = json.load(file)
-	return [tuple(score) for score in score_data]
-
-
-'''保存数据'''
-def save_score_data(score_data):
-	with open("score_lock.json", 'w', encoding='utf-8') as file:
-		json.dump(score_data, file)
 
 
 '''主函数'''
