@@ -8,6 +8,8 @@ import pygame
 import levels
 import sprites
 from menu import *
+import datetime
+import json
 
 
 '''定义一些必要的参数'''
@@ -28,7 +30,9 @@ FONTPATH = os.path.join(os.getcwd(), 'resources/font/SmileySans-Oblique.ttf')
 
 
 '''开始某一关游戏'''
-def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.font.Font, level_index: int):
+def startLevelGame(
+		level: levels.Level, screen: pygame.Surface, font: pygame.font.Font, level_index: int
+	) -> tuple[bool, int]:
 	clock = pygame.time.Clock()
 	SCORE = 0
 	wall_sprites = level.setupWalls(SKYBLUE)
@@ -135,7 +139,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 		pygame.display.flip()
 		# 成功通过
 		if len(food_sprites) == 0:
-			return True
+			return True, SCORE
 		# 被杀死
 		if magic_times['strong']:
 			ghost: sprites.Player
@@ -146,7 +150,7 @@ def startLevelGame(level: levels.Level, screen: pygame.Surface, font: pygame.fon
 				)
 				ghost_index = (ghost_index + 1) % 4
 		elif not god_mode and pygame.sprite.spritecollide(hero, ghost_sprites, False):
-			return False
+			return False, SCORE
 		clock.tick()
 
 
@@ -203,7 +207,7 @@ def showText(screen: pygame.Surface, font: pygame.font.Font, is_clearance: bool)
 	texts = [
 		font.render(msg, True, WHITE),
 		font.render('按“回车”重新游玩', True, WHITE),
-		font.render('按“ESC”或“p”退出游戏', True, WHITE)
+		font.render('按“ESC”或“p”回到菜单', True, WHITE)
 	]
 	positions = [
 		img.get_rect(center=(SIZE[0]/2,SIZE[1]/2+(i-1)*2*img.get_height()))
@@ -239,6 +243,19 @@ def initialize():
 	return screen
 
 
+'''拿到成绩数据'''
+def get_score_data():
+	with open("score_lock.json", 'r', encoding='utf-8') as file:
+		score_data = json.load(file)
+	return [tuple(score) for score in score_data]
+
+
+'''保存数据'''
+def save_score_data(score_data):
+	with open("score_lock.json", 'w', encoding='utf-8') as file:
+		json.dump(score_data, file)
+
+
 '''主函数'''
 def main(screen):
 	pygame.mixer.init()
@@ -249,19 +266,24 @@ def main(screen):
 	font_big = pygame.font.Font(FONTPATH, 24)
 	menu_font = pygame.font.Font(FONTPATH, 48)
 	level_index = 0
+	score_data = get_score_data()
+	enter_menu = True
 	while True:
-		while True:
-			staet_game = main_menu(menu_font)
-			if staet_game:
+		while enter_menu:
+			enter_menu = True
+			start_game = main_menu(menu_font)
+			if start_game:
 				break
-			score_lock(font_big)
+			score_lock(font_big, score_data)
 		level_index += 1
-		level = levels.Level()
-		is_clearance = startLevelGame(level, screen, font_small, level_index)
-		if showText(screen, font_big, is_clearance):
-			break
-	pygame.quit()
-	sys.exit()
+		is_clearance, score = startLevelGame(levels.Level(), screen, font_small, level_index)
+		# 记录新成绩
+		score_data.append(
+			(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), is_clearance, score)
+		)
+		score_data.sort(key=lambda x: x[2], reverse=True)
+		save_score_data(score_data)
+		enter_menu = showText(screen, font_big, is_clearance)
 	
 
 '''test'''
