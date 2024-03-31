@@ -7,7 +7,7 @@ import sys
 import pygame
 import levels
 import sprites
-import copy
+from menu import *
 
 
 '''定义一些必要的参数'''
@@ -247,8 +247,14 @@ def main(screen):
 	pygame.font.init()
 	font_small = pygame.font.Font(FONTPATH, 18)
 	font_big = pygame.font.Font(FONTPATH, 24)
+	menu_font = pygame.font.Font(FONTPATH, 48)
 	level_index = 0
 	while True:
+		while True:
+			staet_game = main_menu(menu_font)
+			if staet_game:
+				break
+			score_lock(font_big)
 		level_index += 1
 		level = levels.Level()
 		is_clearance = startLevelGame(level, screen, font_small, level_index)
