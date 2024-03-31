@@ -29,6 +29,7 @@ def main_menu(font: pygame.font.Font):
 				elif buttons[2][1].collidepoint(event.pos):
 					pygame.quit()
 					sys.exit()
+		surf.fill((60, 60, 60))
 		surf.blit(bg, (0, 0))
 		surf.blits(buttons)
 		pygame.display.flip()
