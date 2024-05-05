@@ -8,6 +8,8 @@ import os
 
 
 NUMLEVELS = 1
+SKYBLUE = (0, 191, 255)
+WHITE = (255, 255, 255)
 
 
 HEROPATH = os.path.join(os.getcwd(), 'resources/images/pacman.png')
@@ -18,6 +20,11 @@ PinkyPATH = os.path.join(os.getcwd(), 'resources/images/Pinky.png')
 
 
 class Level():
+	def __init__(self) -> None:
+		self.setupWalls(SKYBLUE)
+		self.setupGate(WHITE)
+		self.setupPlayers()
+		self.setupFood()
 
 	'''创建墙'''
 	def setupWalls(self, wall_color):
@@ -63,12 +70,11 @@ class Level():
 		for wall_position in wall_positions:
 			wall = Wall(*wall_position, wall_color)
 			self.wall_sprites.add(wall)
-		return self.wall_sprites
 	
 	'''创建门'''
 	def setupGate(self, gate_color):
 		self.gate = Wall(282, 242, 42, 2, gate_color)
-		return self.gate, pygame.sprite.GroupSingle(self.gate)
+		self.gate_sprites = pygame.sprite.GroupSingle(self.gate)
 	
 	'''创建角色'''
 	def setupPlayers(self) -> tuple[Player, pygame.sprite.GroupSingle, pygame.sprite.Group]:
@@ -104,7 +110,7 @@ class Level():
 			[0, -0.5, 15], [-0.5, 0, 7], [0, 0.5, 3], [-0.5, 0, 19], [0, -0.5, 11], [0.5, 0, 9]
 		]
 		self.ghost_sprites.add(Player(287, 259, PinkyPATH, True, tracks))
-		return self.hero, pygame.sprite.GroupSingle(self.hero), self.ghost_sprites
+		self.hero_sprites = pygame.sprite.GroupSingle(self.hero)
 	
 	def add_ghost(self, ghost_path):
 		if ghost_path == BlinkyPATH:
@@ -152,4 +158,15 @@ class Level():
 					or pygame.sprite.collide_rect(food, self.hero)):
 					continue
 				self.food_sprites.add(food)
+				
+	def getWalls(self):
+		return self.wall_sprites
+
+	def  getGate(self):
+		return self.gate, self.gate_sprites
+
+	def  getPlayers(self):
+		return self.hero, self.hero_sprites, self.ghost_sprites
+
+	def  getFood(self):
 		return self.food_sprites

@@ -9,19 +9,16 @@ import levels
 import sprites
 from menu import *
 import datetime
-from edit import editor
-import edit
+from levels import WHITE
 
 '''定义一些必要的参数'''
 SIZE = 686, 606
 BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 PURPLE = (255, 0, 255)
-SKYBLUE = (0, 191, 255)
 BGMPATH = os.path.join(os.getcwd(), 'resources/sounds/bg.mp3')
 ICONPATH = os.path.join(os.getcwd(), 'resources/images/icon.png')
 FONTPATH = os.path.join(os.getcwd(), 'resources/font/SmileySans-Oblique.ttf')
@@ -35,10 +32,10 @@ def startLevelGame(
 	) -> tuple[bool, int]:
 	clock = pygame.time.Clock()
 	SCORE = 0
-	wall_sprites = level.setupWalls(SKYBLUE)
-	gate, gate_sprites = level.setupGate(WHITE)
-	hero, hero_sprites, ghost_sprites = level.setupPlayers()
-	food_sprites = level.setupFood()
+	wall_sprites = level.getWalls()
+	gate, gate_sprites = level.getGate()
+	hero, hero_sprites, ghost_sprites = level.getPlayers()
+	food_sprites = level.getFood()
 	move_time = 0
 	move_COOL = 200
 	magic_times = {
@@ -263,7 +260,7 @@ def main(screen):
 			if choice == 'game':
 				break
 			elif choice == 'edit':
-				edit.editor()
+				editor(level)
 			elif choice == 'score':
 				score_lock(font_big, score_data)
 		level_index += 1

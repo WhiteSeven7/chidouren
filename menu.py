@@ -89,4 +89,8 @@ def score_lock(font:pygame.font.Font, score_data: list[tuple[str, bool, int]]):
 		surf.blit(clear_img, clear_rect)
 		pygame.display.flip()
 		clock.tick(60)
-		
+
+
+'''关卡编辑器'''
+def editor(level):
+	...
