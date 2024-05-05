@@ -41,6 +41,7 @@ def startLevelGame(
 	path = font.render(f"幽灵路径", True, GREEN)
 	index = font.render(f"第{level_index}关", True, WHITE)
 	god_img = font.render(f"上帝模式", True, WHITE)
+	ghost_move = False
 	while True:
 		# control
 		for event in pygame.event.get():
@@ -91,7 +92,9 @@ def startLevelGame(
 					# 额外i得分
 					SCORE += 4
 			# 幽灵移动
-			ghosts_move(ghost_sprites, wall_sprites, magic_times)
+			if ghost_move:
+				ghosts_move(ghost_sprites, wall_sprites, magic_times)
+			ghost_move = not ghost_move
 		# draw
 		screen.fill(BLACK)
 		wall_sprites.draw(screen)
@@ -145,8 +148,36 @@ def startLevelGame(
 '''幽灵移动'''
 def ghosts_move(ghost_sprites, wall_sprites, magic_times):
 	from sprites import Player
+	from editor import to_g
 	ghost: Player
 	for ghost in ghost_sprites:
+		tracks = ghost.tracks
+		if len(tracks) == 0:
+			continue
+		if ghost.rect.collidepoint(tracks[ghost.track_index][0]):
+			ghost.changeSpeed(tracks[ghost.track_index][1], magic_times)
+			ghost.track_index += 1
+			if ghost.track_index >= len(tracks):
+				ghost.track_index = ghost.track_restart
+		# ghost.is_move = True
+		ghost.update(wall_sprites, None)
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		continue
 		# 指定幽灵运动路径
 		tracks_loc = ghost.tracks_loc
 		tracks = ghost.tracks
@@ -162,6 +193,7 @@ def ghosts_move(ghost_sprites, wall_sprites, magic_times):
 				tracks_loc[0] = 0
 			ghost.changeSpeed(tracks[tracks_loc[0]][0: 2], magic_times)
 			tracks_loc[1] = 0
+			print(to_g(ghost.rect.center), tracks[tracks_loc[0]][0: 2])
 		if tracks_loc[1] < tracks[tracks_loc[0]][2]:
 			ghost.changeSpeed(tracks[tracks_loc[0]][0: 2], magic_times)
 		else:
@@ -172,6 +204,7 @@ def ghosts_move(ghost_sprites, wall_sprites, magic_times):
 			else:
 				loc0 = 0
 			ghost.changeSpeed(tracks[loc0][0: 2], magic_times)
+			print(to_g(ghost.rect.center), tracks[tracks_loc[0]][0: 2])
 		ghost.update(wall_sprites, None)
 
 

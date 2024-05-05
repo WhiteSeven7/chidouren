@@ -17,7 +17,7 @@ class Level():
 		self.gate = Wall((276, 242, 54, 2), WHITE)
 		self.gate_sprites = pygame.sprite.GroupSingle(self.gate)
 		# setupPlayers 玩家与怪物
-		self.hero = Player(287, 439, HEROPATH)
+		self.hero = Player(303, 453, HEROPATH)
 		self.hero_sprites = pygame.sprite.GroupSingle(self.hero)
 		self.ghost_sprites = pygame.sprite.Group()
 		self._setupPlayers()
@@ -84,41 +84,14 @@ class Level():
 	
 	'''创建角色'''
 	def _setupPlayers(self) -> tuple[Player, pygame.sprite.GroupSingle, pygame.sprite.Group]:
-		tracks = [
-			[0, -0.5, 4], [0.5, 0, 9], [0, 0.5, 11], [0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, 0.5, 3],
-			[0.5, 0, 15], [0, -0.5, 15], [0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3],
-			[0, -0.5, 3], [-0.5, 0, 7], [0, -0.5, 3], [0.5, 0, 15], [0, 0.5, 15], [-0.5, 0, 3], [0, 0.5, 3],
-			[-0.5, 0, 3], [0, -0.5, 7], [-0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, -0.5, 7], [0.5, 0, 5]
-		]
-
-		# tracks = [
-		# 	# (x, y, direction), ...
-		# ]
-
-		self.ghost_sprites.add(Player(287, 199, BlinkyPATH, True, tracks))
+		# Blinky
+		self.ghost_sprites.add(Player(303, 213, BlinkyPATH, True, TRACKSMAP[BlinkyPATH]))
 		# Clyde
-		tracks = [
-			[-1, 0, 2], [0, -0.5, 4], [0.5, 0, 5], [0, 0.5, 7], [-0.5, 0, 11], [0, -0.5, 7],
-			[-0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 7], [0, 0.5, 15], [0.5, 0, 15], [0, -0.5, 3],
-			[-0.5, 0, 11], [0, -0.5, 7], [0.5, 0, 3], [0, -0.5, 11], [0.5, 0, 9]
-		]
-		self.ghost_sprites.add(Player(319, 259, ClydePATH, True, tracks))
+		self.ghost_sprites.add(Player(333, 273, ClydePATH, True, TRACKSMAP[ClydePATH], 3))
 		# Inky
-		tracks = [
-			[1, 0, 2], [0, -0.5, 4], [0.5, 0, 10], [0, 0.5, 7], [0.5, 0, 3], [0, -0.5, 3],
-			[0.5, 0, 3], [0, -0.5, 15], [-0.5, 0, 15], [0, 0.5, 3], [0.5, 0, 15], [0, 0.5, 11],
-			[-0.5, 0, 3], [0, -0.5, 7], [-0.5, 0, 11], [0, 0.5, 3], [-0.5, 0, 11], [0, 0.5, 7],
-			[-0.5, 0, 3], [0, -0.5, 3], [-0.5, 0, 3], [0, -0.5, 15], [0.5, 0, 15], [0, 0.5, 3],
-			[-0.5, 0, 15], [0, 0.5, 11], [0.5, 0, 3], [0, -0.5, 11], [0.5, 0, 11], [0, 0.5, 3], [0.5, 0, 1]
-		]
-		self.ghost_sprites.add(Player(255, 259, InkyPATH, True, tracks))
+		self.ghost_sprites.add(Player(273, 273, InkyPATH, True, TRACKSMAP[InkyPATH], 15))
 		# Pinky
-		tracks = [
-			[0, -1, 4], [0.5, 0, 9], [0, 0.5, 11], [-0.5, 0, 23], [0, 0.5, 7], [0.5, 0, 3],
-			[0, -0.5, 3], [0.5, 0, 19], [0, 0.5, 3], [0.5, 0, 3], [0, 0.5, 3], [0.5, 0, 3],
-			[0, -0.5, 15], [-0.5, 0, 7], [0, 0.5, 3], [-0.5, 0, 19], [0, -0.5, 11], [0.5, 0, 9]
-		]
-		self.ghost_sprites.add(Player(287, 259, PinkyPATH, True, tracks))
+		self.ghost_sprites.add(Player(303, 273, PinkyPATH, True, TRACKSMAP[PinkyPATH], 9))
 	
 	def add_ghost(self, ghost_path):
 		if ghost_path == BlinkyPATH:

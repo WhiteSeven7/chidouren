@@ -5,6 +5,7 @@ Function:
 import pygame
 import random
 from data import *
+import copy
 
 
 '''墙类'''
@@ -57,21 +58,21 @@ class Food(pygame.sprite.Sprite):
 
 '''角色类'''
 class Player(pygame.sprite.Sprite):
-	def __init__(self, x, y, role_image_path, is_move=False, tracks=None):
+	def __init__(self, x, y, role_image_path, is_move=False, tracks=None, track_restart=0):
 		pygame.sprite.Sprite.__init__(self)
 		self.role_name_path = role_image_path
 		self.base_image = pygame.image.load(role_image_path).convert_alpha()
 		self.image = self.base_image.copy()
-		self.rect = self.image.get_rect()
-		self.rect.left = x
-		self.rect.top = y
+		self.rect = self.image.get_rect(center=(x, y))
 		self.prev_x = x
 		self.prev_y = y
 		self.base_speed = [30, 30]
 		self.speed = [0, 0]
 		self.is_move = is_move
 		self.tracks = [] if tracks is None else tracks
-		self.tracks_loc = [0, 0]
+		# self.tracks_loc = [0, 0]
+		self.track_index = 0
+		self.track_restart = track_restart
 
 
 	'''特殊变色'''
@@ -97,6 +98,17 @@ class Player(pygame.sprite.Sprite):
 		self.speed = [direction[0] * self.base_speed[0], direction[1] * self.base_speed[1]]
 		return self.speed
 	
+	'''改变图片朝向'''
+	def tansformImage(self, direction):
+		if direction[0] < 0:
+			self.image = pygame.transform.flip(self.base_image, True, False)
+		elif direction[0] > 0:
+			self.image = self.base_image.copy()
+		elif direction[1] < 0:
+			self.image = pygame.transform.rotate(self.base_image, 90)
+		elif direction[1] > 0:
+			self.image = pygame.transform.rotate(self.base_image, -90)
+
 	'''更新角色位置'''
 	def update(self, wall_sprites, gate, god_mode: bool=False) -> bool:
 		if gate and not self.is_move:
@@ -119,9 +131,5 @@ class Player(pygame.sprite.Sprite):
 	
 	'''复制的自己'''
 	def copy(self) -> "Player":
-		shadow = self.__class__(
-			self.rect.left, self.rect.top, self.role_name_path,
-			self.is_move, self.tracks
-		)
-		shadow.tracks_loc = self.tracks_loc.copy()
+		shadow = copy.copy(self)
 		return shadow
