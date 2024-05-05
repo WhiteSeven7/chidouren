@@ -111,7 +111,8 @@ def editor(level: Level):
 					elif event.key == pygame.K_DOWN:
 						y += 1
 					picked.rect.center = to_r((x, y))
-					picked.tracks[0] = (picked.rect.center, picked.tracks[0][1])
+					if 'pacman' not in mode:
+						picked.tracks[0] = (picked.rect.center, picked.tracks[0][1])
 				elif 'pacman' not in mode and not click_used and event.type == pygame.MOUSEBUTTONDOWN:
 					# 怪物轨迹
 					x, y = to_g(event.pos)
@@ -128,6 +129,7 @@ def editor(level: Level):
 								if tracks[i][0] == pos:
 									if control_key:
 										picked.track_restart = i
+										TRACKSMAP[mode] = i
 									else:
 										tracks[i] = (tracks[i][0], next_v(tracks[i][1]))
 										if i == 0:
@@ -137,7 +139,7 @@ def editor(level: Level):
 								tracks.append((pos, (-1, 0)))
 						elif event.button == 3:
 							picked.tracks = [tracks[0]] + list(filter(lambda x: x[0] != pos, tracks[1:]))
-						print(picked.tracks)
+							TRACKSMAP[mode] = picked.tracks
 		mouse_pos = pygame.mouse.get_pos()
 		if mode == '':
 			left, _, right = pygame.mouse.get_pressed()
@@ -146,10 +148,18 @@ def editor(level: Level):
 					if wall.rect.collidepoint(mouse_pos) and wall not in level.core_walls:
 						wall.kill()
 		screen.fill('#000000')
+		# 格子线
+		for i in range(21):
+			pygame.draw.line(screen, '#dddddd', (i * 30 + 15 + 3, 3), (i * 30 + 15 + 3, screen.get_height()))
+		for i in range(20):
+			pygame.draw.line(screen, '#dddddd', (3, i * 30 + 15 + 3), (20 * 30 + 15 + 3, i * 30 + 15 + 3))
 		# 游戏元素
 		level.wall_sprites.draw(screen)
 		level.gate_sprites.draw(screen)
-		level.ghost_sprites.draw(screen)
+		if picked is None or picked is level.hero:  # 选中某个ghost时只显示这个ghost
+			level.ghost_sprites.draw(screen)
+		else:
+			screen.blit(picked.image, picked.rect)
 		level.hero_sprites.draw(screen)
 		# 画墙
 		if write_start_g:
@@ -185,11 +195,6 @@ def editor(level: Level):
 				screen.blit(font.render(str(i + 1), True, GREEN), rect)
 			if len(tracks) > 1:
 				pygame.draw.line(screen, PURPLE, tracks[-1][0], tracks[picked.track_restart][0], 2)
-		# 格子线
-		for i in range(21):
-			pygame.draw.line(screen, '#dddddd', (i * 30 + 15 + 3, 3), (i * 30 + 15 + 3, screen.get_height()))
-		for i in range(20):
-			pygame.draw.line(screen, '#dddddd', (3, i * 30 + 15 + 3), (20 * 30 + 15 + 3, i * 30 + 15 + 3))
 		# 选项
 		buttons.draw(screen)
 		for button in buttons:

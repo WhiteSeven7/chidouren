@@ -79,7 +79,7 @@ def startLevelGame(
 		if move_time >= move_COOL:
 			move_time -= move_COOL
 			# 玩家移动位子
-			hero.update(wall_sprites, gate, god_mode)
+			hero.playerUpdate(wall_sprites, gate, god_mode)
 			# 玩家吃果子
 			food_eaten = pygame.sprite.spritecollide(hero, food_sprites, True)
 			SCORE += len(food_eaten)
@@ -107,7 +107,7 @@ def startLevelGame(
 				shadow_ghost_sprites = pygame.sprite.Group()
 				for ghost in ghost_sprites:
 					shadow_ghost_sprites.add(ghost.copy())
-				for _ in range(2 * i + 1):
+				for _ in range(i + 1):
 					ghosts_move(shadow_ghost_sprites, wall_sprites, magic_times)
 				for ghost in shadow_ghost_sprites:
 					ghost.image.set_alpha(200*(5-i)/6)
@@ -148,64 +148,15 @@ def startLevelGame(
 '''幽灵移动'''
 def ghosts_move(ghost_sprites, wall_sprites, magic_times):
 	from sprites import Player
-	from editor import to_g
 	ghost: Player
 	for ghost in ghost_sprites:
 		tracks = ghost.tracks
-		if len(tracks) == 0:
-			continue
 		if ghost.rect.collidepoint(tracks[ghost.track_index][0]):
-			ghost.changeSpeed(tracks[ghost.track_index][1], magic_times)
+			ghost.changeSpeed(tracks[ghost.track_index][1])
 			ghost.track_index += 1
 			if ghost.track_index >= len(tracks):
 				ghost.track_index = ghost.track_restart
-		# ghost.is_move = True
-		ghost.update(wall_sprites, None)
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		continue
-		# 指定幽灵运动路径
-		tracks_loc = ghost.tracks_loc
-		tracks = ghost.tracks
-		if tracks_loc[1] < tracks[tracks_loc[0]][2]:
-			ghost.changeSpeed(tracks[tracks_loc[0]][0: 2], magic_times)
-			tracks_loc[1] += 1
-		else:
-			if tracks_loc[0] < len(tracks) - 1:
-				tracks_loc[0] += 1
-			elif ghost.role_name_path == levels.ClydePATH:
-				tracks_loc[0] = 2
-			else:
-				tracks_loc[0] = 0
-			ghost.changeSpeed(tracks[tracks_loc[0]][0: 2], magic_times)
-			tracks_loc[1] = 0
-			print(to_g(ghost.rect.center), tracks[tracks_loc[0]][0: 2])
-		if tracks_loc[1] < tracks[tracks_loc[0]][2]:
-			ghost.changeSpeed(tracks[tracks_loc[0]][0: 2], magic_times)
-		else:
-			if tracks_loc[0] < len(tracks) - 1:
-				loc0 = tracks_loc[0] + 1
-			elif ghost.role_name_path == levels.ClydePATH:
-				loc0 = 2
-			else:
-				loc0 = 0
-			ghost.changeSpeed(tracks[loc0][0: 2], magic_times)
-			print(to_g(ghost.rect.center), tracks[tracks_loc[0]][0: 2])
-		ghost.update(wall_sprites, None)
+		ghost.ghostUpdate(wall_sprites, magic_times)
 
 
 '''绘制文字'''
