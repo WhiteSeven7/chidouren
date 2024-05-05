@@ -9,11 +9,12 @@ def main_menu(font: pygame.font.Font):
 	surf = pygame.display.get_surface()
 	imgs = (
 		font.render("开始游戏", True, "#000000", "#FFFFFF"),
+		font.render("编辑器", True, "#000000", "#FFFFFF"),
 		font.render("排行榜", True, "#000000", "#FFFFFF"),
 		font.render("退出游戏", True, "#000000", "#FFFFFF"),
 	)
 	buttons = [
-		(img, img.get_rect(center=(surf.get_width()/2,surf.get_height()*i/4)))
+		(img, img.get_rect(center=(surf.get_width()/2,surf.get_height()*i/5)))
 		for i, img in enumerate(imgs, 1)
 	]
 	while True:
@@ -23,10 +24,12 @@ def main_menu(font: pygame.font.Font):
 				sys.exit()
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				if buttons[0][1].collidepoint(event.pos):
-					return True
+					return "game"
 				elif buttons[1][1].collidepoint(event.pos):
-					return False
+					return "edit"
 				elif buttons[2][1].collidepoint(event.pos):
+					return "score"
+				elif buttons[3][1].collidepoint(event.pos):
 					pygame.quit()
 					sys.exit()
 		surf.fill((60, 60, 60))
@@ -49,8 +52,8 @@ def save_score_data(score_data):
 		json.dump(score_data, file)
 
 
+'''显示分数'''
 def score_lock(font:pygame.font.Font, score_data: list[tuple[str, bool, int]]):
-	delete = False
 	clock = pygame.time.Clock()
 	surf = pygame.display.get_surface()
 	center_x = surf.get_width()/4

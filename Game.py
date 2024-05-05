@@ -9,7 +9,8 @@ import levels
 import sprites
 from menu import *
 import datetime
-
+from edit import editor
+import edit
 
 '''定义一些必要的参数'''
 SIZE = 686, 606
@@ -255,14 +256,18 @@ def main(screen):
 	score_data = get_score_data()
 	enter_menu = True
 	while True:
+		level = levels.Level()
 		while enter_menu:
 			enter_menu = True
-			start_game = main_menu(menu_font)
-			if start_game:
+			choice = main_menu(menu_font)
+			if choice == 'game':
 				break
-			score_lock(font_big, score_data)
+			elif choice == 'edit':
+				edit.editor()
+			elif choice == 'score':
+				score_lock(font_big, score_data)
 		level_index += 1
-		is_clearance, score = startLevelGame(levels.Level(), screen, font_small, level_index)
+		is_clearance, score = startLevelGame(level, screen, font_small, level_index)
 		# 记录新成绩
 		score_data.append(
 			(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), is_clearance, score)
