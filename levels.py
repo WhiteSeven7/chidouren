@@ -4,88 +4,97 @@ Function:
 '''
 import pygame
 from sprites import *
-import os
-
-
-NUMLEVELS = 1
-SKYBLUE = (0, 191, 255)
-WHITE = (255, 255, 255)
-
-
-HEROPATH = os.path.join(os.getcwd(), 'resources/images/pacman.png')
-BlinkyPATH = os.path.join(os.getcwd(), 'resources/images/Blinky.png')
-ClydePATH = os.path.join(os.getcwd(), 'resources/images/Clyde.png')
-InkyPATH = os.path.join(os.getcwd(), 'resources/images/Inky.png')
-PinkyPATH = os.path.join(os.getcwd(), 'resources/images/Pinky.png')
+from data import *
 
 
 class Level():
 	def __init__(self) -> None:
-		self.setupWalls(SKYBLUE)
-		self.setupGate(WHITE)
-		self.setupPlayers()
-		self.setupFood()
+		# setupWalls 墙
+		self.wall_sprites = pygame.sprite.Group()
+		self.core_walls = pygame.sprite.Group()
+		self._setupWalls(SKYBLUE)
+		# setupGate 门
+		self.gate = Wall((276, 242, 54, 2), WHITE)
+		self.gate_sprites = pygame.sprite.GroupSingle(self.gate)
+		# setupPlayers 玩家与怪物
+		self.hero = Player(287, 439, HEROPATH)
+		self.hero_sprites = pygame.sprite.GroupSingle(self.hero)
+		self.ghost_sprites = pygame.sprite.Group()
+		self._setupPlayers()
+		# setupFood 食物
+		self.food_sprites = pygame.sprite.Group()
+  
+	def create(self):
+		self._setupFood()
 
 	'''创建墙'''
-	def setupWalls(self, wall_color):
-		self.wall_sprites = pygame.sprite.Group()
-		wall_positions = [[0, 0, 6, 600],
-						  [0, 0, 600, 6],
-						  [0, 600, 606, 6],
-						  [600, 0, 6, 606],
-						  [300, 0, 6, 66],
-						  [60, 60, 186, 6],
-						  [360, 60, 186, 6],
-						  [60, 120, 66, 6],
-						  [60, 120, 6, 126],
-						  [180, 120, 246, 6],
-						  [300, 120, 6, 66],
-						  [480, 120, 66, 6],
-						  [540, 120, 6, 126],
-						  [120, 180, 126, 6],
-						  [120, 180, 6, 126],
-						  [360, 180, 126, 6],
-						  [480, 180, 6, 126],
-						  [180, 240, 6, 126],
-						  [180, 360, 246, 6],
-						  [420, 240, 6, 126],
-						  [240, 240, 42, 6],
-						  [324, 240, 42, 6],
-						  [240, 240, 6, 66],
-						  [240, 300, 126, 6],
-						  [360, 240, 6, 66],
-						  [0, 300, 66, 6],
-						  [540, 300, 66, 6],
-						  [60, 360, 66, 6],
-						  [60, 360, 6, 186],
-						  [480, 360, 66, 6],
-						  [540, 360, 6, 186],
-						  [120, 420, 366, 6],
-						  [120, 420, 6, 66],
-						  [480, 420, 6, 66],
-						  [180, 480, 246, 6],
-						  [300, 480, 6, 66],
-						  [120, 540, 126, 6],
-						  [360, 540, 126, 6]]
-		for wall_position in wall_positions:
-			wall = Wall(*wall_position, wall_color)
+	def _setupWalls(self, wall_color):
+		core_walls = [
+			(240, 240, 36, 6),
+			(240, 300, 126, 6),
+			(360, 240, 6, 66),
+			(330, 240, 36, 6),
+			(240, 240, 6, 66),
+		]
+		wall_rects = [
+			(0, 0, 6, 606),
+			(0, 0, 606, 6),
+			(0, 600, 606, 6),
+			(600, 0, 6, 606),
+			(300, 0, 6, 66),
+			(60, 60, 186, 6),
+			(360, 60, 186, 6),
+			(60, 120, 66, 6),
+			(60, 120, 6, 126),
+			(180, 120, 246, 6),
+			(300, 120, 6, 66),
+			(480, 120, 66, 6),
+			(540, 120, 6, 126),
+			(120, 180, 126, 6),
+			(120, 180, 6, 126),
+			(360, 180, 126, 6),
+			(480, 180, 6, 126),
+			(180, 240, 6, 126),
+			(180, 360, 246, 6),
+			(420, 240, 6, 126),
+			(240, 240, 36, 6),
+			(330, 240, 36, 6),
+			(240, 240, 6, 66),
+			(240, 300, 126, 6),
+			(360, 240, 6, 66),
+			(0, 300, 66, 6),
+			(540, 300, 66, 6),
+			(60, 360, 66, 6),
+			(60, 360, 6, 186),
+			(480, 360, 66, 6),
+			(540, 360, 6, 186),
+			(120, 420, 366, 6),
+			(120, 420, 6, 66),
+			(480, 420, 6, 66),
+			(180, 480, 246, 6),
+			(300, 480, 6, 66),
+			(120, 540, 126, 6),
+			(360, 540, 126, 6),
+		]
+		for wall_rect in wall_rects:
+			wall = Wall(wall_rect, wall_color)
 			self.wall_sprites.add(wall)
-	
-	'''创建门'''
-	def setupGate(self, gate_color):
-		self.gate = Wall(282, 242, 42, 2, gate_color)
-		self.gate_sprites = pygame.sprite.GroupSingle(self.gate)
+			if wall_rect in core_walls:
+				self.core_walls.add(wall)
 	
 	'''创建角色'''
-	def setupPlayers(self) -> tuple[Player, pygame.sprite.GroupSingle, pygame.sprite.Group]:
-		self.hero = Player(287, 439, HEROPATH)
-		self.ghost_sprites = pygame.sprite.Group()
+	def _setupPlayers(self) -> tuple[Player, pygame.sprite.GroupSingle, pygame.sprite.Group]:
 		tracks = [
 			[0, -0.5, 4], [0.5, 0, 9], [0, 0.5, 11], [0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, 0.5, 3],
 			[0.5, 0, 15], [0, -0.5, 15], [0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3], [0, -0.5, 11], [-0.5, 0, 3],
 			[0, -0.5, 3], [-0.5, 0, 7], [0, -0.5, 3], [0.5, 0, 15], [0, 0.5, 15], [-0.5, 0, 3], [0, 0.5, 3],
 			[-0.5, 0, 3], [0, -0.5, 7], [-0.5, 0, 3], [0, 0.5, 7], [-0.5, 0, 11], [0, -0.5, 7], [0.5, 0, 5]
 		]
+
+		# tracks = [
+		# 	# (x, y, direction), ...
+		# ]
+
 		self.ghost_sprites.add(Player(287, 199, BlinkyPATH, True, tracks))
 		# Clyde
 		tracks = [
@@ -110,7 +119,6 @@ class Level():
 			[0, -0.5, 15], [-0.5, 0, 7], [0, 0.5, 3], [-0.5, 0, 19], [0, -0.5, 11], [0.5, 0, 9]
 		]
 		self.ghost_sprites.add(Player(287, 259, PinkyPATH, True, tracks))
-		self.hero_sprites = pygame.sprite.GroupSingle(self.hero)
 	
 	def add_ghost(self, ghost_path):
 		if ghost_path == BlinkyPATH:
@@ -146,8 +154,7 @@ class Level():
 			self.ghost_sprites.add(Player(287, 259, ghost_path, True, tracks))
 
 	'''创建食物'''
-	def setupFood(self):
-		self.food_sprites = pygame.sprite.Group()
+	def _setupFood(self):
 		for row in range(1, 20):
 			for col in range(1, 20):
 				if row in (8, 9) and col in (8, 9, 10):

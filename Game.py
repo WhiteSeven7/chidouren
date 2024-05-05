@@ -10,18 +10,8 @@ import sprites
 from menu import *
 import datetime
 from levels import WHITE
-
-'''定义一些必要的参数'''
-SIZE = 686, 606
-BLACK = (0, 0, 0)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
-PURPLE = (255, 0, 255)
-BGMPATH = os.path.join(os.getcwd(), 'resources/sounds/bg.mp3')
-ICONPATH = os.path.join(os.getcwd(), 'resources/images/icon.png')
-FONTPATH = os.path.join(os.getcwd(), 'resources/font/SmileySans-Oblique.ttf')
+from editor import *
+from data import *
 
 
 
@@ -30,6 +20,7 @@ FONTPATH = os.path.join(os.getcwd(), 'resources/font/SmileySans-Oblique.ttf')
 def startLevelGame(
 		level: levels.Level, screen: pygame.Surface, font: pygame.font.Font, level_index: int
 	) -> tuple[bool, int]:
+	level.create()
 	clock = pygame.time.Clock()
 	SCORE = 0
 	wall_sprites = level.getWalls()
@@ -148,7 +139,7 @@ def startLevelGame(
 				ghost_index = (ghost_index + 1) % 4
 		elif not god_mode and pygame.sprite.spritecollide(hero, ghost_sprites, False):
 			return False, SCORE
-		clock.tick()
+		clock.tick(60)
 
 
 '''幽灵移动'''
@@ -227,7 +218,7 @@ def showText(screen: pygame.Surface, font: pygame.font.Font, is_clearance: bool)
 		for text, position in zip(texts, positions):
 			screen.blit(text, position)
 		pygame.display.flip()
-		clock.tick()
+		clock.tick(60)
 
 
 '''初始化'''

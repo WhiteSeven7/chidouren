@@ -4,25 +4,16 @@ Function:
 '''
 import pygame
 import random
-import os
-
-
-YELLOW = (255, 255, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-
-ORANGEPATH = os.path.join(os.getcwd(), "resources/images/orange.png")
+from data import *
 
 
 '''墙类'''
 class Wall(pygame.sprite.Sprite):
-	def __init__(self, x, y, width, height, color, **kwargs):
+	def __init__(self, rect, color):
 		pygame.sprite.Sprite.__init__(self)
-		self.image = pygame.Surface([width, height])
+		self.rect = pygame.Rect(rect)
+		self.image = pygame.Surface(self.rect.size)
 		self.image.fill(color)
-		self.rect = self.image.get_rect()
-		self.rect.left = x
-		self.rect.top = y
 
 
 '''食物类'''
@@ -51,9 +42,6 @@ class Food(pygame.sprite.Sprite):
 				color = RED
 			elif self.magic == 'view':
 				color = GREEN
-
-		
-
 
 		pygame.sprite.Sprite.__init__(self)
 		if self.magic != 'score':
